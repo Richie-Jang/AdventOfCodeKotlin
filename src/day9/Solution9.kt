@@ -27,37 +27,25 @@ fun createGraph(): HashMap<String, HashSet<LocAndDist>> {
 
 val results = arrayListOf<Int>()
 
-fun searchToEnd(g: HashMap<String, HashSet<LocAndDist>>, cur: String, visited: LinkedHashSet<String>, distance: Int) {
-    val list = g[cur]!!.toList()
-    val needvisitedlist = list.filter {!visited.contains(it.loc)}
-    val needcount = needvisitedlist.size
-    if (needcount > 0) {
-        for ((i,d) in needvisitedlist) {
-            visited.add(i)
-            searchToEnd(g, i, visited, distance + d)
-            visited.remove(i)
+fun findAWay (loc: String, graph: HashMap<String, HashSet<LocAndDist>>, visited: LinkedHashSet<String>, dist: Int) {
+    val list = graph[loc]!!.toList()
+    val needVisits = list.filter { !visited.contains(it.loc) }
+    val needCount = needVisits.size
+    if (needCount > 0) {
+        needVisits.forEach {
+            visited.add(it.loc)
+            findAWay(it.loc, graph, visited, dist + it.dist)
+            visited.remove(it.loc)
         }
     } else {
-        results.add (distance)
-    }
-}
-
-fun findAWay (start: String, graph: HashMap<String, HashSet<LocAndDist>>) {
-    val list = graph[start]!!.toList()
-    val visited = linkedSetOf(start)
-    for ((l,d) in list) {
-        if (!visited.contains(l)) {
-            visited.add(l)
-            searchToEnd(graph, l, visited, d)
-            visited.remove(l)
-        }
+        results.add(dist)
     }
 }
 
 fun main (args: Array<String>) {
     val graph = createGraph()
     for (i in graph.keys) {
-        findAWay (i, graph)
+        findAWay (i, graph, linkedSetOf(i), 0)
     }
 
     println ("Shortest Route : ${results.min()}")
